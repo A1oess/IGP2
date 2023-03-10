@@ -145,6 +145,11 @@ class ScenarioConfig:
         """Return the vertices of the buildings in the map."""
         return self.config_dict.get("buildings")
 
+    @property
+    def true_world_flag(self) -> bool:
+        """Return the true world flag of the map."""
+        return self.config_dict.get("true_world_flag")
+
 
 class Scenario(abc.ABC):
     """ Represents an arbitrary driving scenario with interactions broken to episodes. """

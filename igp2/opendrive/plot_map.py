@@ -35,7 +35,7 @@ def plot_map(odr_map: Map, ax: plt.Axes = None, scenario_config=None, **kwargs) 
 
     ax.set_xlim([odr_map.west, odr_map.east])
     ax.set_ylim([odr_map.south, odr_map.north])
-    ax.set_facecolor("grey")
+    ax.set_facecolor("white")
 
     if kwargs.get("plot_background", False):
         if scenario_config is None:
@@ -57,27 +57,51 @@ def plot_map(odr_map: Map, ax: plt.Axes = None, scenario_config=None, **kwargs) 
             for building in buildings:
                 # Add the first point also at the end, so we plot a closed contour of the obstacle.
                 building.append((building[0]))
-                plt.plot(*list(zip(*building)), color="black")
+                plt.fill(*list(zip(*building)), color="black", alpha=0.5)
 
     if kwargs.get("plot_goals", False):
         if scenario_config is None:
-            raise ValueError("scenario_config must be provided to draw buildings")
+            raise ValueError("scenario_config must be provided to draw goals")
         else:
             goals = scenario_config.goals
 
             for goal in goals:
                 plt.plot(*goal, color="r", marker='o', ms=10)
 
-    if kwargs.get("ignore_roads", False):
+    if kwargs.get("ignore_roads", False) and kwargs.get("markings", False) is not True:
+        print(kwargs.get("markings", False))
         return ax
 
     for road_id, road in odr_map.roads.items():
         boundary = road.boundary.boundary
-        if boundary.geom_type == "LineString":
-            ax.plot(boundary.xy[0],
-                    boundary.xy[1],
-                    color=kwargs.get("road_color", "k"))
-        elif boundary.geom_type == "MultiLineString":
+        if boundary.geom_type == "LineString" and kwargs.get("ignore_roads", False) is not True:
+            x = boundary.xy[0]
+            y = boundary.xy[1]
+            ax.plot(x,
+                    y,
+                    # color=kwargs.get("road_color", "k"),
+                    color=(0.7, 0.7, 0.7, 0.7),
+                    linewidth=0.5)
+            # if (x[0] - x[-1] == 0 and abs(y[0] - y[-1]) < 10) \
+            #     or (y[0] - y[-1] == 0.1 and abs(x[0] - x[-1]) < 10): 
+            #         x_temp = [x[-1], x[0]]
+            #         y_temp = [y[-1], y[0]]
+            #         ax.plot(x_temp,
+            #                 y_temp,
+            #                 # color=kwargs.get("road_color", "k"),
+            #                 color="white",
+            #                 linewidth=3)
+            # for idx in range(len(x)-1):
+            #     if (x[idx+1] - x[idx] == 0 and abs(y[idx+1] - y[idx]) < 10) \
+            #         or (y[idx+1] - y[idx] == 0 and abs(x[idx+1] - x[idx]) < 10):
+            #         x_temp = [x[idx], x[idx+1]]
+            #         y_temp = [y[idx], y[idx+1]]
+            #         ax.plot(x_temp,
+            #                 y_temp,
+            #                 # color=kwargs.get("road_color", "k"),
+            #                 color="white",
+            #                 linewidth=3)
+        elif boundary.geom_type == "MultiLineString" and kwargs.get("ignore_roads", False) is not True:
             for b in boundary:
                 ax.plot(b.xy[0],
                         b.xy[1],
@@ -119,15 +143,17 @@ def plot_map(odr_map: Map, ax: plt.Axes = None, scenario_config=None, **kwargs) 
                             side = "left" if lane.id <= 0 else "right"
                             line = lane.reference_line.parallel_offset(i * df, side=side)
                             ax.plot(line.xy[0], line.xy[1],
-                                    color=marker.color_to_rgb,
+                                    #color=marker.color_to_rgb,
+                                    color="grey",
                                     linestyle=style,
-                                    linewidth=marker.plot_width)
+                                    # linewidth=marker.plot_width
+                                    linewidth=0.8)
 
     for junction_id, junction in odr_map.junctions.items():
         if junction.boundary.geom_type == "Polygon":
             ax.fill(junction.boundary.boundary.xy[0],
                     junction.boundary.boundary.xy[1],
-                    color=kwargs.get("junction_color", (0.941, 1.0, 0.420, 0.5)))
+                    color=kwargs.get("junction_color", (1, 1, 1, 1)))
         else:
             for polygon in junction.boundary:
                 ax.fill(polygon.boundary.xy[0],
