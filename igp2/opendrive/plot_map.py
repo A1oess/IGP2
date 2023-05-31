@@ -33,9 +33,13 @@ def plot_map(odr_map: Map, ax: plt.Axes = None, scenario_config=None, **kwargs) 
     if ax is None:
         _, ax = plt.subplots(1, 1)
 
-    ax.set_xlim([odr_map.west, odr_map.east])
-    ax.set_ylim([odr_map.south, odr_map.north])
-    ax.set_facecolor("white")
+    # ax.set_xlim([odr_map.west, odr_map.east])
+    # ax.set_ylim([odr_map.south, odr_map.north])
+    ax.set_xlim([10, 140])
+    ax.set_ylim([-95, -5])
+    ax.set_facecolor("black")
+    ax.axes.xaxis.set_visible(False)
+    ax.axes.yaxis.set_visible(False)
 
     if kwargs.get("plot_background", False):
         if scenario_config is None:
@@ -69,7 +73,7 @@ def plot_map(odr_map: Map, ax: plt.Axes = None, scenario_config=None, **kwargs) 
                 plt.plot(*goal, color="r", marker='o', ms=10)
 
     if kwargs.get("ignore_roads", False) and kwargs.get("markings", False) is not True:
-        print(kwargs.get("markings", False))
+        # print(kwargs.get("markings", False))
         return ax
 
     for road_id, road in odr_map.roads.items():
